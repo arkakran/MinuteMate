@@ -1,0 +1,41 @@
+<!-- backend/templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MinuteMate</title>
+    <style>
+        body { font-family: Arial; max-width: 700px; margin: 50px auto; text-align: center; }
+        button { padding: 10px 20px; font-size: 18px; }
+        #output { margin-top: 30px; text-align: left; }
+        pre { background: #f0f0f0; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>📝 MinuteMate</h1>
+    <p>Click below to record, transcribe, and summarize your meeting.</p>
+    <button onclick="startProcessing()">▶️ Start Meeting Analysis</button>
+
+    <div id="output"></div>
+
+    <script>
+        async function startProcessing() {
+            document.getElementById('output').innerHTML = "Processing... Please speak into your mic.";
+            const res = await fetch("/process", { method: "POST" });
+            const data = await res.json();
+
+            if (data.status === "success") {
+                document.getElementById('output').innerHTML = `
+                    <h2>✅ Summary</h2>
+                    <pre>${data.summary}</pre>
+                    <h3>📌 Action Items</h3>
+                    <pre>${data.action_items.join("\n")}</pre>
+                    <h3>🔁 Follow Ups</h3>
+                    <pre>${data.follow_ups.join("\n")}</pre>
+                `;
+            } else {
+                document.getElementById('output').innerHTML = `<p style="color:red;">❌ ${data.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
